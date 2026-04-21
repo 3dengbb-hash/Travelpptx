@@ -1,0 +1,658 @@
+// Global Awareness & Cultural Literacy Presentation
+// Run: node build_presentation.js
+// Requires: npm install pptxgenjs
+// Images are pulled from Unsplash/Pixabay free URLs — internet connection required at build time.
+
+const pptxgen = require("pptxgenjs");
+
+const pres = new pptxgen();
+pres.layout = "LAYOUT_16x9";
+pres.title = "Your World, Your Perspective";
+pres.author = "Presenter";
+
+// ─── COLOR PALETTE ───────────────────────────────────────────────────────────
+const C = {
+  navy:    "1B2A4A",  // dominant dark
+  teal:    "0E8A7A",  // accent green-teal
+  gold:    "E8A020",  // warm accent
+  cream:   "F5F0E8",  // light bg
+  white:   "FFFFFF",
+  light:   "EAF4F2",  // very light teal
+  mid:     "5B8FA8",  // medium blue
+  dark:    "111827",  // near black
+  muted:   "64748B",  // grey
+};
+
+// ─── PHOTO URLS ──────────────────────────────────────────────────────────────
+// Free-to-use Unsplash/Pixabay direct image URLs
+const PHOTOS = {
+  kilmarnock:  "https://images.unsplash.com/photo-1506377585622-bedcbb027afc?w=900&q=80",  // Scottish highlands/town
+  scotland:    "https://images.unsplash.com/photo-1506377585622-bedcbb027afc?w=900&q=80",
+  daegu:       "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=900&q=80",  // Korea night city
+  korea:       "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=900&q=80",
+  japan:       "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=900&q=80",  // Tokyo street
+  france:      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=900&q=80",  // Paris
+  belgium:     "https://images.unsplash.com/photo-1559628233-100c798642b8?w=900&q=80",     // Brussels
+  england:     "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=900&q=80",  // London
+  spain:       "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=900&q=80",  // Barcelona
+  germany:     "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=900&q=80",  // Neuschwanstein
+  italy:       "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=900&q=80",     // Rome Colosseum
+  china:       "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=900&q=80",  // Great Wall
+  taiwan:      "https://images.unsplash.com/photo-1470004914212-05527e49370b?w=900&q=80",  // Taipei
+  australia:   "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=900&q=80",  // Sydney
+  newzealand:  "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=900&q=80",  // NZ fjord
+  iceland:     "https://images.unsplash.com/photo-1531168556467-80aace0d0144?w=900&q=80",  // Aurora
+  canada:      "https://images.unsplash.com/photo-1500297539640-35b0bfc48db2?w=900&q=80",  // Banff
+  mexico:      "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=900&q=80",  // Colorful streets
+  world:       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&q=80",  // Globe from space
+  travel:      "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=900&q=80",  // Airplane window
+  train:       "https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=900&q=80",  // Train
+  languages:   "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=900&q=80",  // Language/study
+  passport:    "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=900&q=80",  // Travel docs
+  creditcard:  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80",  // Credit card
+  discord:     "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=900&q=80",  // Online community
+  pokemon:     "https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?w=900&q=80",  // Pokemon Go style
+  karaoke:     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=900&q=80",  // Karaoke/music
+  food:        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",  // Food spread
+};
+
+// ─── HELPER: standard content slide with half-bleed image ────────────────────
+function addContentSlide({ title, bullets, imageUrl, imageRight = true, bgColor = C.white, titleColor = C.navy, bulletColor = C.dark, accentColor = C.teal }) {
+  const slide = pres.addSlide();
+  slide.background = { color: bgColor };
+
+  const imgX = imageRight ? 5.2 : 0;
+  const textX = imageRight ? 0.5 : 5.4;
+
+  // Half-bleed image
+  slide.addImage({
+    path: imageUrl,
+    x: imgX, y: 0, w: 4.8, h: 5.625,
+    sizing: { type: "cover", w: 4.8, h: 5.625 }
+  });
+
+  // Teal accent bar on image edge
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: imageRight ? 5.2 : 4.7, y: 0, w: 0.08, h: 5.625,
+    fill: { color: accentColor }, line: { color: accentColor }
+  });
+
+  // Title
+  slide.addText(title, {
+    x: textX, y: 0.35, w: 4.5, h: 0.65,
+    fontSize: 22, bold: true, color: titleColor, fontFace: "Trebuchet MS",
+    margin: 0
+  });
+
+  // Thin rule under title
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: textX, y: 1.0, w: 4.3, h: 0.04,
+    fill: { color: accentColor }, line: { color: accentColor }
+  });
+
+  // Bullets
+  const bulletItems = bullets.map((b, i) => ({
+    text: b,
+    options: { bullet: true, breakLine: i < bullets.length - 1, paraSpaceAfter: 6, color: bulletColor }
+  }));
+  slide.addText(bulletItems, {
+    x: textX, y: 1.15, w: 4.4, h: 4.1,
+    fontSize: 14, fontFace: "Calibri", valign: "top"
+  });
+
+  return slide;
+}
+
+// ─── HELPER: dark full-bleed section divider ─────────────────────────────────
+function addDividerSlide({ label, title, subtitle, imageUrl }) {
+  const slide = pres.addSlide();
+  slide.addImage({
+    path: imageUrl,
+    x: 0, y: 0, w: 10, h: 5.625,
+    sizing: { type: "cover", w: 10, h: 5.625 }
+  });
+  // Dark overlay
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 0, y: 0, w: 10, h: 5.625,
+    fill: { color: C.navy, transparency: 40 }, line: { color: C.navy, transparency: 40 }
+  });
+  if (label) {
+    slide.addText(label.toUpperCase(), {
+      x: 0.7, y: 1.4, w: 8, h: 0.4,
+      fontSize: 13, color: C.gold, bold: true, fontFace: "Trebuchet MS",
+      charSpacing: 4, margin: 0
+    });
+  }
+  slide.addText(title, {
+    x: 0.7, y: 1.9, w: 8.6, h: 1.4,
+    fontSize: 44, bold: true, color: C.white, fontFace: "Trebuchet MS",
+    margin: 0
+  });
+  if (subtitle) {
+    slide.addText(subtitle, {
+      x: 0.7, y: 3.4, w: 8.6, h: 0.8,
+      fontSize: 18, color: C.cream, fontFace: "Calibri", italic: true, margin: 0
+    });
+  }
+  return slide;
+}
+
+// ─── HELPER: 3-column card slide ─────────────────────────────────────────────
+function addCardSlide({ title, cards, bgColor = C.light }) {
+  // cards: [{icon, heading, body}]
+  const slide = pres.addSlide();
+  slide.background = { color: bgColor };
+
+  slide.addText(title, {
+    x: 0.5, y: 0.25, w: 9, h: 0.65,
+    fontSize: 26, bold: true, color: C.navy, fontFace: "Trebuchet MS",
+    align: "center", margin: 0
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 3.5, y: 0.88, w: 3, h: 0.04,
+    fill: { color: C.teal }, line: { color: C.teal }
+  });
+
+  const colW = 2.8;
+  const startX = 0.55;
+  const gap = 0.25;
+  cards.forEach((card, i) => {
+    const cx = startX + i * (colW + gap);
+    // Card background
+    slide.addShape(pres.shapes.RECTANGLE, {
+      x: cx, y: 1.1, w: colW, h: 4.1,
+      fill: { color: C.white },
+      shadow: { type: "outer", color: "000000", blur: 8, offset: 3, angle: 135, opacity: 0.12 }
+    });
+    // Accent top bar
+    slide.addShape(pres.shapes.RECTANGLE, {
+      x: cx, y: 1.1, w: colW, h: 0.12,
+      fill: { color: C.teal }, line: { color: C.teal }
+    });
+    // Icon/emoji
+    slide.addText(card.icon, {
+      x: cx, y: 1.28, w: colW, h: 0.7,
+      fontSize: 28, align: "center", margin: 0
+    });
+    // Heading
+    slide.addText(card.heading, {
+      x: cx + 0.1, y: 1.98, w: colW - 0.2, h: 0.55,
+      fontSize: 14, bold: true, color: C.navy, fontFace: "Trebuchet MS",
+      align: "center", margin: 0
+    });
+    // Body
+    slide.addText(card.body, {
+      x: cx + 0.15, y: 2.6, w: colW - 0.3, h: 2.45,
+      fontSize: 12, color: C.dark, fontFace: "Calibri",
+      align: "left", valign: "top", margin: 0
+    });
+  });
+  return slide;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 1 — TITLE
+// ═══════════════════════════════════════════════════════════════════════════════
+{
+  const slide = pres.addSlide();
+  slide.addImage({
+    path: PHOTOS.world,
+    x: 0, y: 0, w: 10, h: 5.625,
+    sizing: { type: "cover", w: 10, h: 5.625 }
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 0, y: 0, w: 10, h: 5.625,
+    fill: { color: C.navy, transparency: 35 }, line: { color: C.navy, transparency: 35 }
+  });
+  // Gold accent left bar
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 0.6, y: 1.2, w: 0.1, h: 3.0,
+    fill: { color: C.gold }, line: { color: C.gold }
+  });
+  slide.addText("YOUR WORLD,", {
+    x: 0.9, y: 1.2, w: 8.5, h: 0.85,
+    fontSize: 52, bold: true, color: C.white, fontFace: "Trebuchet MS",
+    charSpacing: 2, margin: 0
+  });
+  slide.addText("YOUR PERSPECTIVE", {
+    x: 0.9, y: 2.0, w: 8.5, h: 0.85,
+    fontSize: 52, bold: true, color: C.gold, fontFace: "Trebuchet MS",
+    charSpacing: 2, margin: 0
+  });
+  slide.addText("Global Awareness & Cultural Literacy", {
+    x: 0.9, y: 3.05, w: 8.5, h: 0.5,
+    fontSize: 20, color: C.cream, fontFace: "Calibri", italic: true, margin: 0
+  });
+  slide.addText("Why the world is smaller — and more interesting — than you think", {
+    x: 0.9, y: 3.65, w: 8.5, h: 0.4,
+    fontSize: 14, color: C.cream, fontFace: "Calibri", margin: 0
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 2 — ABOUT THE PRESENTER
+// ═══════════════════════════════════════════════════════════════════════════════
+{
+  const slide = pres.addSlide();
+  slide.background = { color: C.navy };
+
+  slide.addImage({
+    path: PHOTOS.passport,
+    x: 5.4, y: 0, w: 4.6, h: 5.625,
+    sizing: { type: "cover", w: 4.6, h: 5.625 }
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 5.4, y: 0, w: 4.6, h: 5.625,
+    fill: { color: C.navy, transparency: 55 }, line: { color: C.navy, transparency: 55 }
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 5.35, y: 0, w: 0.08, h: 5.625,
+    fill: { color: C.gold }, line: { color: C.gold }
+  });
+
+  slide.addText("ABOUT ME", {
+    x: 0.5, y: 0.3, w: 4.7, h: 0.4,
+    fontSize: 12, bold: true, color: C.gold, charSpacing: 4, fontFace: "Trebuchet MS", margin: 0
+  });
+  slide.addText("I've Been Around\nthe Block(s)", {
+    x: 0.5, y: 0.75, w: 4.7, h: 1.1,
+    fontSize: 30, bold: true, color: C.white, fontFace: "Trebuchet MS", margin: 0
+  });
+
+  const sections = [
+    { label: "🎓 Study Abroad", text: "Kilmarnock, Scotland  •  Daegu, South Korea" },
+    { label: "💼 Work Travel", text: "Japan · Korea · China · Taiwan · England · Belgium · Spain · France · Germany · Italy" },
+    { label: "✈️ Pleasure Travel", text: "Australia · New Zealand · Iceland · France · Italy · Canada · Mexico · South Korea" },
+  ];
+  sections.forEach((s, i) => {
+    slide.addText(s.label, {
+      x: 0.5, y: 2.05 + i * 1.05, w: 4.7, h: 0.3,
+      fontSize: 13, bold: true, color: C.gold, fontFace: "Trebuchet MS", margin: 0
+    });
+    slide.addText(s.text, {
+      x: 0.5, y: 2.38 + i * 1.05, w: 4.7, h: 0.5,
+      fontSize: 12, color: C.cream, fontFace: "Calibri", margin: 0
+    });
+  });
+
+  slide.addText("20+ countries · 4 continents · countless stories", {
+    x: 0.5, y: 5.1, w: 9, h: 0.35,
+    fontSize: 12, color: C.muted, fontFace: "Calibri", italic: true, margin: 0
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 3 — DIVIDER: STUDY ABROAD
+// ═══════════════════════════════════════════════════════════════════════════════
+addDividerSlide({
+  label: "Chapter 1",
+  title: "Study Abroad",
+  subtitle: "Two countries. Six weeks. A lifetime of perspective.",
+  imageUrl: PHOTOS.languages
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 4 — KILMARNOCK, SCOTLAND
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "Kilmarnock, Scotland 🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  bullets: [
+    "3 weeks of full immersion in Scottish culture and university life",
+    "Home of Johnnie Walker whisky — where history is literally on tap",
+    "English spoken here, but you'll still need a translator at times",
+    "Learned that 'brilliant' means 'great' and 'wee' means everything small",
+    "The pace of life: slower, deliberate, and full of conversation",
+    "Burns Night, local pubs, and the art of the proper Scottish breakfast",
+    "Takeaway: language is more than words — it's identity and community",
+  ],
+  imageUrl: PHOTOS.kilmarnock,
+  imageRight: true,
+  accentColor: C.teal
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 5 — DAEGU, SOUTH KOREA
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "Daegu, South Korea 🇰🇷",
+  bullets: [
+    "3 weeks immersed in one of Korea's most vibrant cities",
+    "Known for its fashion, food markets, and Apple Haenyeo tradition",
+    "First encounter with a radically different writing system: Hangul",
+    "Navigating subway systems with no English signs — figure it out!",
+    "Discovering how food, family, and respect are deeply intertwined",
+    "Guest lectures alongside Korean university students — eye-opening",
+    "Takeaway: discomfort = growth. Embrace not knowing.",
+  ],
+  imageUrl: PHOTOS.daegu,
+  imageRight: false,
+  accentColor: C.gold
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 6 — DIVIDER: CULTURAL DIFFERENCES
+// ═══════════════════════════════════════════════════════════════════════════════
+addDividerSlide({
+  label: "Chapter 2",
+  title: "Cultural Differences",
+  subtitle: "The moments that make you stop and think: wait, that's normal here?",
+  imageUrl: PHOTOS.food
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 7 — JAPAN
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "Japan 🇯🇵 — Expect the Unexpected",
+  bullets: [
+    "🍱 No 'Clean Plate Club' — leaving food shows you were satisfied, not wasteful",
+    "🗺️ Getting lost when you can't read the signs — GPS becomes your best friend",
+    "🎤 Karaoke night is a social institution, not just a party trick",
+    "🙅 The inability to say 'No' — indirect communication is an art form",
+    "Harmony and group consensus valued over individual opinion",
+    "Punctuality is not a suggestion — trains run to the second",
+    "Bowing is a language in itself — depth and duration matter",
+  ],
+  imageUrl: PHOTOS.japan,
+  imageRight: true,
+  accentColor: C.teal
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 8 — FRANCE
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "France 🇫🇷 — Work to Live",
+  bullets: [
+    "🕐 The 2-hour lunch — lunch is a sacred social ritual, not a desk activity",
+    "🍽️ 'Entrée' means appetizer — ordering can be a cultural minefield",
+    "⏱️ The 35-hour work week — legally protected and passionately defended",
+    "Work-life balance isn't a buzzword; it's embedded in law and culture",
+    "Grocery stores close on Sundays — and nobody seems to mind",
+    "Fashion, philosophy, and food are taken very, very seriously",
+    "Saying 'Bonjour' when entering any shop is not optional — it's respect",
+  ],
+  imageUrl: PHOTOS.france,
+  imageRight: false,
+  accentColor: C.gold
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 9 — BELGIUM & ENGLAND
+// ═══════════════════════════════════════════════════════════════════════════════
+addCardSlide({
+  title: "Belgium 🇧🇪 & England 🏴󠁧󠁢󠁥󠁮󠁧󠁿 — European Quirks",
+  cards: [
+    {
+      icon: "🍺",
+      heading: "Belgium",
+      body: "Beer on tap in the company cafeteria — yes, really\n\nPomme frites (fries) served with mayo, not ketchup — a game-changer\n\nWaffles are street food, not just breakfast\n\nTwo official languages (French & Dutch) in one small country"
+    },
+    {
+      icon: "☕",
+      heading: "England",
+      body: "Tea time and biscuits — not optional, deeply cultural\n\n'Biscuits' are cookies (not what Americans mean!)\n\nBoathouses along the Thames — a whole lifestyle\n\nQueuing is a national sport and a matter of honor"
+    },
+    {
+      icon: "🌍",
+      heading: "The Big Lesson",
+      body: "Even 'Western' countries differ wildly from each other\n\nNo two European cultures are the same\n\nDon't assume shared language = shared values\n\nSmall details reveal the biggest cultural truths"
+    }
+  ]
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 10 — SPAIN
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "Spain 🇪🇸 — Street Smarts Required",
+  bullets: [
+    "🕵️ Pickpockets are professionals — they work in teams and target tourists",
+    "👮 Fake police officers: someone in uniform asks to see your wallet... don't",
+    "Always keep bags in front, money split between locations, and stay alert",
+    "Dinner doesn't start until 9 or 10pm — adjust your hunger accordingly",
+    "Siesta culture: afternoon slowdown is real, plan around it",
+    "Flamenco, tapas, and fiestas — the culture is vibrant and loud by design",
+    "Lesson: being aware of your environment is a travel superpower",
+  ],
+  imageUrl: PHOTOS.spain,
+  imageRight: true,
+  accentColor: C.gold
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 11 — CHINA
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "China 🇨🇳 — A World Within a World",
+  bullets: [
+    "🥢 Food culture is central to every relationship and meeting",
+    "Sharing dishes is the norm — ordering just for yourself is unusual",
+    "Personal space as Americans know it... doesn't really exist",
+    "Crowds are just crowds — no offense intended, none taken",
+    "Business cards are given and received with two hands — always",
+    "The Great Wall, street markets, and 4,000 years of history everywhere",
+    "Lesson: what feels rude at home may be perfectly normal elsewhere",
+  ],
+  imageUrl: PHOTOS.china,
+  imageRight: false,
+  accentColor: C.teal
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 12 — SOUTH KOREA (CULTURAL)
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "South Korea 🇰🇷 — Ritual & Identity",
+  bullets: [
+    "🎁 Gift giving culture: bring something when visiting ANYONE",
+    "👟 Remove your shoes before entering a home — no exceptions",
+    "🩸 Blood type as personality: A, B, O, AB defines how others see you",
+    "🧠 MBTI is everywhere — you'll be asked your type within minutes",
+    "Age hierarchy is deeply respected: you speak differently to elders",
+    "Korean BBQ is a communal event, not just a meal",
+    "Lesson: personality, identity, and social rules vary culture to culture",
+  ],
+  imageUrl: PHOTOS.korea,
+  imageRight: true,
+  accentColor: C.gold
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 13 — DIVIDER: PLEASURE TRAVEL
+// ═══════════════════════════════════════════════════════════════════════════════
+addDividerSlide({
+  label: "Chapter 3",
+  title: "Traveling for Joy",
+  subtitle: "Because the world rewards the curious.",
+  imageUrl: PHOTOS.newzealand
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 14 — AUSTRALIA & NEW ZEALAND
+// ═══════════════════════════════════════════════════════════════════════════════
+addCardSlide({
+  title: "Australia 🇦🇺 & New Zealand 🇳🇿",
+  bgColor: C.cream,
+  cards: [
+    {
+      icon: "🦘",
+      heading: "Australia",
+      body: "Sydney Opera House — iconic for a reason\n\nWildlife unlike anything on Earth: kangaroos, koalas, venomous everything\n\nFriendliest strangers on the planet\n\nOutback, beaches, and rainforest all in one country"
+    },
+    {
+      icon: "🏔️",
+      heading: "New Zealand",
+      body: "Milford Sound — a fjord so beautiful it looks fake\n\nBungee jumping birthplace — adventure tourism capital\n\nMāori culture: one of the world's richest indigenous traditions\n\nLord of the Rings landscapes in real life"
+    },
+    {
+      icon: "✨",
+      heading: "Why Go?",
+      body: "Both countries feel familiar but surprise you constantly\n\nPerfect introduction to long-haul international travel\n\nEnglish-speaking but genuinely different from America\n\nNature-first culture that reshapes your worldview"
+    }
+  ]
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 15 — ICELAND
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "Iceland 🇮🇸 — The Edge of the World",
+  bullets: [
+    "🌌 Northern Lights (Aurora Borealis) — a once-in-a-lifetime sky show",
+    "🌋 Geysers, volcanoes, glaciers, and waterfalls in a single day",
+    "Land of the midnight sun: 24-hour daylight in summer",
+    "One of the safest, most literate, most gender-equal countries on Earth",
+    "Tiny population (350,000) — about the size of a mid-size American city",
+    "Hot springs and geothermal pools as everyday relaxation",
+    "Lesson: some places change how you see natural beauty forever",
+  ],
+  imageUrl: PHOTOS.iceland,
+  imageRight: false,
+  accentColor: C.teal
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 16 — DIVIDER: TRAVEL HACKS
+// ═══════════════════════════════════════════════════════════════════════════════
+addDividerSlide({
+  label: "Chapter 4",
+  title: "Travel Smarter",
+  subtitle: "The hacks, tricks, and tools that make the world more accessible.",
+  imageUrl: PHOTOS.creditcard
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 17 — TRAVEL HACKS
+// ═══════════════════════════════════════════════════════════════════════════════
+addCardSlide({
+  title: "Travel Hacks: Make It Happen for Less",
+  bgColor: C.light,
+  cards: [
+    {
+      icon: "💳",
+      heading: "Travel Credit Cards",
+      body: "No foreign transaction fees = instant savings abroad\n\nEarn miles/points on every purchase — even groceries\n\nTravel protection: delayed flights, lost baggage coverage included\n\nStart early — credit history takes time to build"
+    },
+    {
+      icon: "🏨",
+      heading: "Hotel Points",
+      body: "Loyalty programs: free nights add up faster than you think\n\nHilton, Marriott, IHG all have student-friendly entry cards\n\nPoint transfers between airlines & hotels unlock big value\n\nBook early, cancel free — maximize flexibility"
+    },
+    {
+      icon: "🕐",
+      heading: "The Time-Shifter",
+      body: "Jet lag is beatable with the right strategy\n\nStart shifting sleep/wake times 3 days before departure\n\nGet sunlight at the destination's morning, avoid it at their night\n\nStay awake until local bedtime on arrival day — no naps!"
+    }
+  ]
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 18 — DIVIDER: THE WORLD COMES TO YOU
+// ═══════════════════════════════════════════════════════════════════════════════
+addDividerSlide({
+  label: "Chapter 5",
+  title: "The World Comes to You",
+  subtitle: "You don't have to wait for a passport to go global.",
+  imageUrl: PHOTOS.discord
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 19 — GLOBAL CONNECTIONS NOW
+// ═══════════════════════════════════════════════════════════════════════════════
+addCardSlide({
+  title: "Going Global From Your Bedroom",
+  bgColor: C.white,
+  cards: [
+    {
+      icon: "🎮",
+      heading: "Discord Communities",
+      body: "Join international study servers — language exchange, global classrooms\n\nReal conversations with real students across 6 continents\n\nPractice languages, debate world events, make global friends\n\nYour next study partner might be in Seoul or São Paulo"
+    },
+    {
+      icon: "📍",
+      heading: "Pokémon GO",
+      body: "International Friendship feature connects players worldwide\n\nGift cards carry real place photos from around the globe\n\nLocal community days happen simultaneously worldwide\n\nA surprisingly powerful bridge to global curiosity"
+    },
+    {
+      icon: "🌐",
+      heading: "Getting There",
+      body: "Plane · Train · Car · Bus · Boat\n\nEurail passes open all of Europe for one price\n\nCruise ships visit 10 ports in 14 days\n\nRoad trips across borders teach you more than any textbook"
+    }
+  ]
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 20 — WHY IT MATTERS
+// ═══════════════════════════════════════════════════════════════════════════════
+addContentSlide({
+  title: "Why Cultural Literacy Matters Now",
+  bullets: [
+    "🌍 The jobs of the future are global — your colleagues will be worldwide",
+    "Cultural intelligence (CQ) is as valued as IQ or EQ in hiring",
+    "Understanding other worldviews makes you a better problem-solver",
+    "72% of employers say international experience sets candidates apart",
+    "Language skills open doors — even basic proficiency earns respect",
+    "Empathy across cultures reduces conflict and builds partnerships",
+    "The world will not come to you — but it rewards those who go to it",
+  ],
+  imageUrl: PHOTOS.travel,
+  imageRight: true,
+  accentColor: C.teal,
+  bgColor: C.cream
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE 21 — CALL TO ACTION (CLOSING TITLE STYLE)
+// ═══════════════════════════════════════════════════════════════════════════════
+{
+  const slide = pres.addSlide();
+  slide.addImage({
+    path: PHOTOS.world,
+    x: 0, y: 0, w: 10, h: 5.625,
+    sizing: { type: "cover", w: 10, h: 5.625 }
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 0, y: 0, w: 10, h: 5.625,
+    fill: { color: C.navy, transparency: 40 }, line: { color: C.navy, transparency: 40 }
+  });
+
+  slide.addText("Start Your Journey", {
+    x: 0.7, y: 0.8, w: 8.6, h: 0.9,
+    fontSize: 42, bold: true, color: C.white, fontFace: "Trebuchet MS",
+    align: "center", margin: 0
+  });
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x: 3.5, y: 1.72, w: 3, h: 0.06,
+    fill: { color: C.gold }, line: { color: C.gold }
+  });
+
+  const actions = [
+    "📚  Sign up for a language class — even one semester counts",
+    "🔍  Research study abroad programs at your future college",
+    "💳  Open a no-fee travel card the day you turn 18",
+    "🌐  Join an international Discord server this week",
+    "🗺️  Pick one country. Learn three facts about it today.",
+  ];
+
+  const actionItems = actions.map((a, i) => ({
+    text: a,
+    options: { bullet: false, breakLine: i < actions.length - 1, paraSpaceAfter: 4, color: C.white }
+  }));
+
+  slide.addText(actionItems, {
+    x: 1.5, y: 2.0, w: 7, h: 2.8,
+    fontSize: 15, fontFace: "Calibri", valign: "top", align: "left"
+  });
+
+  slide.addText("The world is waiting. Are you?", {
+    x: 0.7, y: 4.95, w: 8.6, h: 0.45,
+    fontSize: 14, color: C.gold, fontFace: "Trebuchet MS",
+    italic: true, align: "center", bold: true, margin: 0
+  });
+}
+
+// ─── WRITE FILE ───────────────────────────────────────────────────────────────
+pres.writeFile({ fileName: "GlobalAwareness_Presentation.pptx" })
+  .then(() => console.log("✅  GlobalAwareness_Presentation.pptx created successfully!"))
+  .catch(err => console.error("❌  Error:", err));
